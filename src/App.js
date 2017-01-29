@@ -7,11 +7,23 @@ class App extends Component {
     super(props);
 
     function zeros(dimensions) {
-      var array = [];
-      for (var i = 0; i < dimensions[0]; ++i) {
+      let array = [];
+      for (let i = 0; i < dimensions[0]; ++i) {
           array.push(dimensions.length === 1 ? "dead" : zeros(dimensions.slice(1)));
       }
       return array;
+    }
+    function randomStart(data){
+      let arr = [];
+      for(let i = 0; i < 200; i++){
+        let r = Math.floor(Math.random()*40);
+        let c = Math.floor(Math.random()*50);
+        arr.push([r,c]);
+      }
+      for(let i = 0; i < arr.length; i++){
+        data[arr[i][0]][arr[i][1]] = "old";
+      }
+      return data;
     }
 
     let d = zeros([40,50]);
@@ -19,7 +31,7 @@ class App extends Component {
     this.state = {
       rows: 40,
       cols: 50,
-      data: d
+      data: randomStart(d)
     }
     this.updateCell = this.updateCell.bind(this);
   }
