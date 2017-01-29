@@ -1,0 +1,18 @@
+.cell{
+  width: 10px;
+  height: 10px;
+  margin: 1px 1px;
+  display: inline-block;
+}
+
+.dead{
+  background-color: #004400;
+}
+
+.born{
+  background-color: #56A856;
+}
+
+.old{
+  background-color: #9CED9C;
+}
