@@ -11,7 +11,7 @@ const Row = (props) => {
       colNum={i}
       value={props.values[i]}
       key={k}
-      updateCell={props.updateCell}
+      addCell={props.addCell}
     />);
   }
   return(

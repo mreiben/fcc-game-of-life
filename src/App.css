@@ -11,9 +11,16 @@ h1{
 
 #board{
   width: 640px;
-  height: 500px;
+  height: 530px;
   margin: 10px auto 0px auto;
   border: 5px solid #004400;
   border-radius: 8px;
   padding-top: 20px;
+}
+
+.gen-counter{
+  font-family: monospace;
+  color: #004400;
+  font-size: 25px;
+  line-height: 25px;
 }

@@ -18,3 +18,8 @@ body {
   background: radial-gradient(ellipse at center, rgba(45,136,45,1) 0%, rgba(17,102,17,1) 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d882d', endColorstr='#116611', GradientType=1 );
 }
+
+#add-btn{
+  width: 130px;
+  margin: 20px auto;
+}

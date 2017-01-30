@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {Button, ButtonToolbar} from 'react-bootstrap';
 import Row from './components/Row.js';
 import './App.css';
 
@@ -6,10 +7,14 @@ class App extends Component {
   constructor(props){
     super(props);
 
-    function zeros(dimensions) {
+    function zeros(rows,cols){
       let array = [];
-      for (let i = 0; i < dimensions[0]; ++i) {
-          array.push(dimensions.length === 1 ? "dead" : zeros(dimensions.slice(1)));
+      for (let r = 0; r < rows; r++) {
+        let row = [];
+          for (let c = 0; c < cols; c++) {
+            row.push(["dead",0,r,c]);
+          }
+        array.push(row);
       }
       return array;
     }
@@ -20,33 +25,46 @@ class App extends Component {
         let c = Math.floor(Math.random()*50);
         arr.push([r,c]);
       }
-      for(let i = 0; i < arr.length; i++){
-        data[arr[i][0]][arr[i][1]] = "old";
+      for(let x = 0; x < arr.length; x++){
+        let row = arr[x][0];
+        let col = arr[x][1];
+        data[row][col][0] = "old";
       }
       return data;
     }
 
-    let d = zeros([40,50]);
+    let d = zeros(40,50);
 
     this.state = {
       rows: 40,
       cols: 50,
       data: randomStart(d)
     }
-    this.updateCell = this.updateCell.bind(this);
+    this.addCell = this.addCell.bind(this);
   }
 
-  updateCell(row, col, val){
+  // generationTick(data){
+  //   //map over data array and change count for each
+  //   const dataCounts = data.map(function(cell){
+  //     //edge cases - top row, bottom row, left col, right col
+  //   });
+  //
+  //   //map over data and kill any cell wil <2 || >3 neighbors
+  //   //and create any cell with exactly 3 neighbors
+  //
+  // }
+
+  addCell(row, col, val){
     console.log("Updating row: " + row + " cell: " + col + " val: " + val);
     let data = this.state.data;
     if(val === "dead"){
-      data[row][col] = "born";
+      data[row][col] = ["born",0];
     }
     else if(val === "born"){
-      data[row][col] = "old";
+      data[row][col] = ["old",0];
     }
     else{
-      data[row][col] = "dead";
+      data[row][col] = ["dead",0];
     }
     this.setState({data: data});
   }
@@ -60,7 +78,7 @@ class App extends Component {
         key={i}
         rowNum={i}
         values={this.state.data[i]}
-        updateCell={this.updateCell}
+        addCell={this.addCell}
       />);
     }
     return (
@@ -68,6 +86,13 @@ class App extends Component {
         <h1>Game of Life</h1>
         <div id="board">
           {rows}
+        </div>
+        <ButtonToolbar id="add-btn">
+          <Button bsStyle="success">Start</Button>
+          <Button bsStyle="danger">Clear</Button>
+        </ButtonToolbar>
+        <div className="gen-counter">
+          <p>Generation: <span id="generation">0</span></p>
         </div>
       </div>
     );
