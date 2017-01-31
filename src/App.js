@@ -38,21 +38,123 @@ class App extends Component {
     this.state = {
       rows: 40,
       cols: 50,
-      data: randomStart(d)
+      data: randomStart(d),
+      generation: 0
     }
     this.addCell = this.addCell.bind(this);
+    this.countNeighbors = this.countNeighbors.bind(this);
   }
 
-  // generationTick(data){
-  //   //map over data array and change count for each
-  //   const dataCounts = data.map(function(cell){
-  //     //edge cases - top row, bottom row, left col, right col
-  //   });
-  //
-  //   //map over data and kill any cell wil <2 || >3 neighbors
-  //   //and create any cell with exactly 3 neighbors
-  //
-  // }
+  countNeighbors(cell,data){
+    const r = cell[2];
+    const c = cell[3];
+    let x = 0;
+    //check top row
+    if(r===0){
+      //check left column
+      if(c===0){
+        if(data[data.length-1][data[0].length-1][0] !== "dead"){x++;}
+        if(data[data.length-1][0][0] !== "dead"){x++;}
+        if(data[data.length-1][1][0] !== "dead"){x++;}
+        if(data[0][data[0].length-1][0] !== "dead"){x++;}
+        if(data[0][1][0] !== "dead"){x++;}
+        if(data[1][data[0].length-1][0] !== "dead"){x++;}
+        if(data[1][0][0] !== "dead"){x++;}
+        if(data[1][1][0] !== "dead"){x++;}
+      }
+      else if (c=== data[0].length - 1){
+        if(data[data.length-1][data[0].length-2][0] !== "dead"){x++;}
+        if(data[data.length-1][data[0].length-1][0] !== "dead"){x++;}
+        if(data[data.length-1][0][0] !== "dead"){x++;}
+        if(data[0][data[0].length-2][0] !== "dead"){x++;}
+        if(data[0][0][0] !== "dead"){x++;}
+        if(data[1][data[0].length-2][0] !== "dead"){x++;}
+        if(data[1][data[0].length-1][0] !== "dead"){x++;}
+        if(data[1][0][0] !== "dead"){x++;}
+      }
+      else {
+        if(data[data.length-1][c-1][0] !== "dead"){x++;}
+        if(data[data.length-1][c][0] !== "dead"){x++;}
+        if(data[data.length-1][c+1][0] !== "dead"){x++;}
+        if(data[0][c-1][0] !== "dead"){x++;}
+        if(data[0][c+1][0] !== "dead"){x++;}
+        if(data[1][c-1][0] !== "dead"){x++;}
+        if(data[1][c][0] !== "dead"){x++;}
+        if(data[1][c+1][0] !== "dead"){x++;}
+      }
+    }
+    else if (r===data.length-1){
+      if(c===0){
+        if(data[r-1][data[0].length-1][0] !== "dead"){x++;}
+        if(data[r-1][0][0] !== "dead"){x++;}
+        if(data[r-1][1][0] !== "dead"){x++;}
+        if(data[r][data[0].length-1][0] !== "dead"){x++;}
+        if(data[r][1][0] !== "dead"){x++;}
+        if(data[0][data[0].length-1][0] !== "dead"){x++;}
+        if(data[0][0][0] !== "dead"){x++;}
+        if(data[0][1][0] !== "dead"){x++;}
+      }
+      else if (c === data[0].length - 1){
+        if(data[r-1][data[0].length-2][0] !== "dead"){x++;}
+        if(data[r-1][data[0].length-1][0] !== "dead"){x++;}
+        if(data[r-1][0][0] !== "dead"){x++;}
+        if(data[r][data[0].length-2][0] !== "dead"){x++;}
+        if(data[r][0][0] !== "dead"){x++;}
+        if(data[0][data[0].length-2][0] !== "dead"){x++;}
+        if(data[0][data[0].length-1][0] !== "dead"){x++;}
+        if(data[0][0][0] !== "dead"){x++;}
+      }
+    }
+    else if (c === 0){
+      if(data[r-1][data[0].length-1][0] !== "dead"){x++;}
+      if(data[r-1][0][0] !== "dead"){x++;}
+      if(data[r-1][1][0] !== "dead"){x++;}
+      if(data[r][data[0].length-1][0] !== "dead"){x++;}
+      if(data[r][1][0] !== "dead"){x++;}
+      if(data[r+1][data[0].length-1][0] !== "dead"){x++;}
+      if(data[r+1][c][0] !== "dead"){x++;}
+      if(data[r+1][c+1][0] !== "dead"){x++;}
+    }
+    else if(c===data[0].length-1){
+      if(data[r-1][c-1][0] !== "dead"){x++;}
+      if(data[r-1][c][0] !== "dead"){x++;}
+      if(data[r-1][0][0] !== "dead"){x++;}
+      if(data[r][c-1][0] !== "dead"){x++;}
+      if(data[r][0][0] !== "dead"){x++;}
+      if(data[r+1][c-1][0] !== "dead"){x++;}
+      if(data[r+1][c][0] !== "dead"){x++;}
+      if(data[r+1][c+1][0] !== "dead"){x++;}
+    }
+    else {
+      if(data[r-1][c-1][0] !== "dead"){x++;}
+      if(data[r-1][c][0] !== "dead"){x++;}
+      if(data[r-1][c+1][0] !== "dead"){x++;}
+      if(data[r][c-1][0] !== "dead"){x++;}
+      if(data[r][c+1][0] !== "dead"){x++;}
+      if(data[r+1][c-1][0] !== "dead"){x++;}
+      if(data[r+1][c][0] !== "dead"){x++;}
+      if(data[r+1][c+1][0] !== "dead"){x++;}
+    }
+    return x;
+  }
+
+  //broken
+  generationTick(){
+    let newData = this.state.data.map(function(cell){
+      let newCell = cell;
+      newCell[1] = this.countNeighbors(cell,data);
+      if(newCell[1] < 2 || newCell[1] > 3){
+        newCell[0] = "dead";
+      } else if (newCell[1] === 3){
+        newCell[0] === "dead" ? newCell[0] = "born" : newCell[0] = "old";
+      }
+      return newCell;
+    });
+
+    this.setState({data: newData});
+    let g = this.state.generation;
+    this.setState({generation: g + 1});
+  }
 
   addCell(row, col, val){
     console.log("Updating row: " + row + " cell: " + col + " val: " + val);
@@ -88,7 +190,7 @@ class App extends Component {
           {rows}
         </div>
         <ButtonToolbar id="add-btn">
-          <Button bsStyle="success">Start</Button>
+          <Button bsStyle="success" onClick={this.generationTick()}>Start</Button>
           <Button bsStyle="danger">Clear</Button>
         </ButtonToolbar>
         <div className="gen-counter">
