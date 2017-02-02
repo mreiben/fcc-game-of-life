@@ -39,16 +39,22 @@ class App extends Component {
       rows: 40,
       cols: 50,
       data: randomStart(d),
-      generation: 0
+      generation: 0,
+      tickOn: false,
+      started: false,
     }
+
     this.addCell = this.addCell.bind(this);
-    this.countNeighbors = this.countNeighbors.bind(this);
+    //this.countNeighbors = this.countNeighbors.bind(this);
+    this.generationTick = this.generationTick.bind(this);
+    this.runTicks = this.runTicks.bind(this);
   }
 
-  countNeighbors(cell,data){
-    const r = cell[2];
-    const c = cell[3];
+  countNeighbors = (cell) => {
     let x = 0;
+    let data = this.state.data;
+    let r = cell[2];
+    let c = cell[3];
     //check top row
     if(r===0){
       //check left column
@@ -123,7 +129,7 @@ class App extends Component {
       if(data[r][0][0] !== "dead"){x++;}
       if(data[r+1][c-1][0] !== "dead"){x++;}
       if(data[r+1][c][0] !== "dead"){x++;}
-      if(data[r+1][c+1][0] !== "dead"){x++;}
+      if(data[r+1][0][0] !== "dead"){x++;}
     }
     else {
       if(data[r-1][c-1][0] !== "dead"){x++;}
@@ -138,35 +144,73 @@ class App extends Component {
     return x;
   }
 
-  //broken
-  generationTick(){
-    let newData = this.state.data.map(function(cell){
-      let newCell = cell;
-      newCell[1] = this.countNeighbors(cell,data);
-      if(newCell[1] < 2 || newCell[1] > 3){
+  clearCells = () => {
+    let newData = this.state.data.map(function(row){
+      let newRow = row.map(function(cell){
+        let newCell = cell;
         newCell[0] = "dead";
-      } else if (newCell[1] === 3){
-        newCell[0] === "dead" ? newCell[0] = "born" : newCell[0] = "old";
-      }
-      return newCell;
+        newCell[1] = 0;
+        return newCell;
+      });
+      return newRow;
     });
 
     this.setState({data: newData});
-    let g = this.state.generation;
-    this.setState({generation: g + 1});
+    this.setState({generation: 0});
+  }
+
+  generationTick = () => {
+    let self = this;
+    if(this.state.tickOn){
+      let newData = this.state.data.map(function(row){
+        let newRow = row.map(function(cell){
+          let newCell = [cell[0], self.countNeighbors(cell), cell[2], cell[3]];
+          if(newCell[1] < 2 || newCell[1] > 3){
+            newCell[0] = "dead";
+          } else if(newCell[1] === 3){
+            if(newCell[0] === "dead"){
+              newCell[0] = "born";
+            } else if(newCell[0] === "born"){
+              newCell[0] = "old";
+            }
+          } else if(newCell[1] === 2){
+            if(newCell[0] === "born"){
+              newCell[0] = "old";
+            } else {
+              newCell[0] = newCell[0];
+            }
+          }
+          return newCell;
+        });
+        return newRow;
+      });
+
+      this.setState({data: newData});
+      let g = this.state.generation;
+      this.setState({generation: g + 1});
+    }
+  }
+
+  runTicks(){
+    let self = this;
+    if(this.state.tickOn === false && this.state.started === false){
+      let tickRunner = setInterval(self.generationTick,100);
+      this.setState({started: true});
+    }
+    this.setState({tickOn: true});
   }
 
   addCell(row, col, val){
     console.log("Updating row: " + row + " cell: " + col + " val: " + val);
     let data = this.state.data;
     if(val === "dead"){
-      data[row][col] = ["born",0];
+      data[row][col] = ["born",0,row,col];
     }
     else if(val === "born"){
-      data[row][col] = ["old",0];
+      data[row][col] = ["old",0,row,col];
     }
     else{
-      data[row][col] = ["dead",0];
+      data[row][col] = ["dead",0,row,col];
     }
     this.setState({data: data});
   }
@@ -190,11 +234,12 @@ class App extends Component {
           {rows}
         </div>
         <ButtonToolbar id="add-btn">
-          <Button bsStyle="success" onClick={this.generationTick()}>Start</Button>
-          <Button bsStyle="danger">Clear</Button>
+          <Button bsStyle="success" onClick={() => this.runTicks()}>Start</Button>
+          <Button bsStyle="info" onClick={() => this.setState({tickOn: false})}>Pause</Button>
+          <Button bsStyle="danger" onClick={() => this.clearCells()}>Clear</Button>
         </ButtonToolbar>
         <div className="gen-counter">
-          <p>Generation: <span id="generation">0</span></p>
+          <p>Generation: <span id="generation">{this.state.generation}</span></p>
         </div>
       </div>
     );
